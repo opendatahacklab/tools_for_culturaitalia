@@ -1,22 +1,9 @@
 <?php
 /**
- * To retrieve all the religious buildings from the MiBAC SPARQL endpoint. 
+ * To retrieve all the libraries from the MiBAC SPARQL endpoint. 
  * This dataset should conform the CIDOC-CRM data model.
  *
- * Copyright 2016 Cristiano Longo
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Cristiano Longo 2014
  *
  */
 
@@ -27,13 +14,27 @@ error_reporting(E_ALL);
 require("../sparqllib.php");
 
 /**
+ * Point coordinates
+ */
+class Point{
+	public $lat;
+	public $long;
+	
+	function __construct($lat, $long){
+		$this->lat=$lat;
+		$this->long=$long;
+	}
+}
+
+/**
  * A class representing a library. 
  */
-class POI{
+class Library{
 	private $uri;
 	private $name;
 	private $address;
 	private $notes = array();
+	private $coords;
 	
 	function __construct($uri, $name, $address){
 		$this->uri=$uri;
@@ -65,6 +66,33 @@ class POI{
 	function getNotes(){
 		return $this->notes;
 	}
+	
+	function setCoordinates($coords){
+		$this->coords=$coords;
+	}
+	
+	function getCoordinates(){
+		return $this->coords;
+	}
+	
+	function getLong(){
+		return $this->long;
+	}
+}
+
+/**
+ * Retrieve a point [lat,long] from an address.
+ * Return a string lat,long, or null if geocoding failed.
+ **/
+function retrievePoint($address){
+	$request_url = "http://maps.googleapis.com/maps/api/geocode/xml?sensor=false&address=" . urlencode($address);
+	$xml = simplexml_load_file($request_url) or die("url not loading");
+	$lat = $xml->result->geometry->location->lat;
+	$long = $xml->result->geometry->location->lng;
+	
+	if ($lat!=null && $long!=null)  return new Point($lat, $long);	
+	echo "Unable to load $request_url";
+	return null;
 }
 
 /*
@@ -80,7 +108,7 @@ function process($data, $handler){
 		else
 			$note=null;
 		if (!isset($actual)){
-			$actual=new POI($uri, $name, $address);
+			$actual=new Library($uri, $name, $address);
 			if (isset($note))
 				$actual->addNote($note);
 		} else if ($uri==$actual->getURI()){
@@ -90,8 +118,13 @@ function process($data, $handler){
 				$actual->addNote($note);
 		} else{
 			$actualAddress=str_replace('-',',',$actual->getAddress());
+			//if ($actualAddress!=null){
+			//	$coords=retrievePoint($actualAddress);
+			//	if ($coords!=null)
+			//		$actual->setCoordinates($coords);
+			//}
 			$handler($actual);
-			$actual=new POI($uri, $name, $address);
+			$actual=new Library($uri, $name, $address);
 			if (isset($note))
 				$actual->addNote($note);
 		}
@@ -99,23 +132,22 @@ function process($data, $handler){
 }
 
 
-define("QUERY", 'PREFIX crm: <http://erlangen-crm.org/120111/>
+define("LIBRARIES_QUERY", "PREFIX crm: <http://erlangen-crm.org/120111/>
 PREFIX oai: <http://www.openarchives.org/OAI/2.0/>
  
 select ?r ?name ?address ?note where{
-	?r crm:P2_has_type <http://culturaitalia.it/pico/thesaurus/4.1#edifici_religiosi> .
-	?r crm:P1_is_identified_by ?i .
-	?i a crm:E35_Title .
-	?i rdf:value ?name .
-	?r crm:P53_has_former_or_current_location  ?pr .
-	?pr rdf:value ?address .
-        FILTER regex(str(?address), "^[A-Z].*-") .
-	
-	OPTIONAL{
-		?r crm:P3_has_note ?nr .
-		?nr rdf:value ?note.
-	}
-}');
+?r crm:P2_has_type <http://culturaitalia.it/pico/thesaurus/4.1#biblioteche> .
+?r crm:P1_is_identified_by ?i .
+?i a oai:E82_Actor_Appellation .
+?i rdf:value ?name .
+?r crm:P74_has_current_or_former_residence ?pr .
+?pr rdf:value ?address .
+ 
+OPTIONAL{
+?r crm:P3_has_note ?nr .
+?nr rdf:value ?note.
+}
+}");
 define("MiBAC_ENDPOINT","http://dati.culturaitalia.it/sparql/");
 
 /**
@@ -124,8 +156,8 @@ define("MiBAC_ENDPOINT","http://dati.culturaitalia.it/sparql/");
  * @param hadler a function with a Library instance as solely parameter, which will perform the processing of the
  * retrieved libraries.
  */
-function processPOIs($handler){
-	$data = sparql_get(MiBAC_ENDPOINT, QUERY);
+function processLibraries($handler){
+	$data = sparql_get(MiBAC_ENDPOINT, LIBRARIES_QUERY);
 	if(!isset($data)) die(sparql_errno() . ": " . sparql_error()); 
 	process($data, $handler);
 }
