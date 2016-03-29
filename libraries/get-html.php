@@ -49,18 +49,17 @@ function printLibrary($l){
 <meta charset="UTF-8">
 <title>opendatahacklab - Tools for CulturaItalia - Religious Buildings</title>
 <link rel="stylesheet" type="text/css"
-href="http://opendatahacklab.github.io/odhl.css" />
+href="../../commons/css/odhl.css" />
 </head>
 <body>
 <header class="main-header">
 <img class="logo"
-src="http://opendatahacklab.github.io//imgs/logo_cog4_ter.png"
+src="../../commons/imgs/logo_cog4_ter.png"
 alt="the opendatahacklab logo" />
 <h1>opendatahacklab - tools for culturaitalia - public libraries</h1>
 <p class="subtitle">
-THE OPEN DATA HACKING LABORATORY - Powered by <a
-href="http://github.com"><img alt="GitHub"
-src="http://opendatahacklab.github.io/imgs/GitHub_Logo.png" /></a>
+THE OPEN DATA HACKING LABORATORY - Powered by 
+			<a class="wt-tech" target="_blank" href="http://wt-tech.it">WT-TECH</a>
 </p>
 <nav>
 <ol class="breadcrumb">
@@ -72,9 +71,9 @@ src="http://opendatahacklab.github.io/imgs/GitHub_Logo.png" /></a>
 <a
 href="https://github.com/opendatahacklab/tools_for_culturaitalia.git"
 alt="Source Code" title="GitHub repository"><img
-src="http://opendatahacklab.github.io/imgs/GitHub-Mark-64px.png" /></a>
+src="../../commons/imgs/GitHub-Mark-64px.png" /></a>
 <a href="http://dati.culturaitalia.it/sparql/"><img
-src="http://opendatahacklab.github.io/imgs/rdf.png" /></a>
+src="../../commons/imgs/rdf.png" /></a>
 </nav>
 </header>
 <section>
