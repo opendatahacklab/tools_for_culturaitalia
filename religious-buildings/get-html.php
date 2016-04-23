@@ -55,8 +55,8 @@ THE OPEN DATA HACKING LABORATORY - Powered by
 </p>
 <nav>
 <ol class="breadcrumb">
-	<li><a href="http://opendatahacklab.github.io/index.html">home</a></li>
-	<li><a href="http://opendatahacklab.github.io/projects.html">projects</a></li>
+	<li><a href="http://opendatahacklab.org/site/index.html">home</a></li>
+	<li><a href="http://opendatahacklab.org/site/projects.html">projects</a></li>
 	<li><a href="../index.html">tools for culturaitalia</a></li>
 	<li>religious buildings</li>li>
 </ol>
